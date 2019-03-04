@@ -1,0 +1,28 @@
+﻿//Gotchas.pbix
+EVALUATE
+VAR TheGreatGatsbySSN = 250000
+VAR NewYorkPeople =
+    FILTER (
+        'New York People',
+        // The FILTER function does create a row context. You can therefore refer to the current SSN.
+        // Because there is a row context, there is no filter context.
+        NOT ( 'New York People'[SSN] = TheGreatGatsbySSN )
+    )
+VAR TheGreatGatsbyRow =
+    ROW (
+            "SSN", TheGreatGatsbySSN,
+            "Gender", "Male",
+            "Group", "Gangster",
+			"AreaCode", "AAA-3",
+            "Maximum Cups Per Day", 9,
+            "Ethnicity", "White",
+
+            "Speakeasy Membership Start Date", DATE ( 1921, 3, 4 ),
+            "Speakeasy Membership End Date", DATE ( 1923, 5, 3 ),
+       // The ROW function does not operate within a row context. For example this is not possible
+       //  ,"Membership Duration (days)", [Membership End Date] - [Membership Start Date]
+	   
+	        "Is Speakeasy Visitor", "Is Speakeasy Visitor"
+    )
+RETURN
+    UNION ( NewYorkPeople, TheGreatGatsbyRow )

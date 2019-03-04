@@ -1,0 +1,8 @@
+﻿//Gotchas.pbix: Calculated columns on table New York People. Not measures!
+
+Sum of Count of Cups (no CALCULATE) = SUM(Consumption[Cups Count])
+
+Sum of Count of Cups (using CALCULATE) = CALCULATE ( SUM ( 'Consumption'[Cups Count] ) )
+
+Sum of Count of Cups (using measure) = [Count of Cups (sum)]
+

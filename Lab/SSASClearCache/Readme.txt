@@ -1,0 +1,1 @@
+As part of my DAX Gotchas lab environment I needed to create this console application in order to transfer the one billion rows without getting an out of memory exception. You don't need it if you have a few million rows.

@@ -1,0 +1,16 @@
+﻿//Version without DAX variables - not used in lab
+Consumption =
+SELECTCOLUMNS (
+    CROSSJOIN (
+        SELECTCOLUMNS (
+            'New York People',
+            "SSN", 'New York People'[SSN],
+            "Maximum Cups Per Day", 'New York People'[Maximum Cups Per Day]
+        ),
+        CALENDAR ( DATE ( 1920, 1, 1 ), DATE ( 1920, 1, 1 ) + 180 )
+    ),
+    "Partition Bucket", MOD ( [SSN], 1000 ),
+    "SSN", [SSN],
+    "Date", [Date],
+    "Cups Count", RANDBETWEEN ( 0, [Maximum Cups Per Day] )
+)

@@ -1,0 +1,37 @@
+﻿//Gotchas.pbix
+
+//Measure
+Selected Month Number =
+SELECTEDVALUE ( 'Date'[Month Number] )
+
+//Measure
+Selected Month Number (no syntax sugar) =
+IF ( HASONEVALUE ( 'Date'[Month Number] ), VALUES ( 'Date'[Month Number] ) )
+
+//Calculated table
+Monthly Consumption = 
+ SUMMARIZECOLUMNS (
+    // Column from a table of a billion
+    'Consumption'[SSN], 
+
+    // Selecting a column from 'New York People' would have caused a circular dependency later on
+    //'New York People'[SSN], 
+    
+    // Column from a table of a billion
+    'Consumption'[Is Alcoholic Drink],
+    
+    // Column from a few hundred
+    'Date'[Month In Calendar], 
+    
+    // Even without a row context we can still select the value based on "selected" Month In Calendar 
+    "Semester", IF (
+        NOT(ISBLANK ( [Count of Cups (sum)] )), // We only want to return a semester if there was consumption
+        IF ( [Selected Month Number] <= 6, "Semester 1", "Semester 2" )
+    ),
+    
+    // Measure on a table of a billion
+    "Cups Count", [Count of Cups (sum)]
+)
+
+//Measure
+Count of Cups (Monthly) (sum) = SUM('Monthly Consumption'[Cups Count])

@@ -1,0 +1,39 @@
+﻿//Calculated table
+Speakeasy People Active Date =
+VAR OuterApply =
+    GENERATE (
+        FILTER (
+            'New York People',
+            NOT ( ISBLANK ( [Speakeasy Membership Start Date] ) )
+        ),
+        CALENDAR (
+            'New York People'[Speakeasy Membership Start Date],
+            VAR EndDate = 'New York People'[Speakeasy Membership End Date]
+            RETURN
+                IF ( ISBLANK ( EndDate ), [Max Date], EndDate )
+        )
+    )
+RETURN
+    SELECTCOLUMNS (
+        OuterApply,
+        "SSN", [SSN],
+        "Date", [Date],
+        "Is Started", [Speakeasy Membership Start Date] = [Date],
+        "Is Ended", [Speakeasy Membership End Date] = [Date]
+    )
+    
+//Measures
+Speakeasy People (Active) (cnt) = DISTINCTCOUNT('Speakeasy People Active Date'[SSN])
+
+Speakeasy People (Started) (cnt) =
+CALCULATE (
+    DISTINCTCOUNT ( 'Speakeasy People Active Date'[SSN] ),
+    'Speakeasy People Active Date'[Is Start Date] = TRUE
+)
+
+Speakeasy People (Ended) (cnt) =
+CALCULATE (
+    DISTINCTCOUNT ( 'Speakeasy People Active Date'[SSN] ),
+    'Speakeasy People Active Date'[Is End Date] = TRUE
+)
+

@@ -1,0 +1,19 @@
+﻿//Gotchas.pbix: calculated table
+Date = 
+VAR AllDates =
+    CALENDAR ( [Min Date], [Max Date] )
+RETURN
+    ADDCOLUMNS (
+        AllDates,
+        "Month Number", MONTH ( [Date] ),
+        "Month Name", FORMAT ( [Date], "mmmm" ),
+        "Month In Calendar", FORMAT ( [Date], "mmmm" ) & " "
+            & YEAR ( [Date] ),
+        "Year", YEAR ( [Date] ),
+        "Year Month Int", YEAR ( [Date] ) * 100
+            + MONTH ( [Date] ),
+        "Day Of Week Number", VALUE ( WEEKDAY ( [Date] ) ),
+        -- Gotcha: VALUE for conversion from Text to Whole Number
+        "Day Of Week", FORMAT ( [Date], "dddd" ),
+        "Is Weekend", IF ( WEEKDAY ( [Date] ) IN { 7, 1 }, "Is Weekend", "Is Weekday" )
+    )

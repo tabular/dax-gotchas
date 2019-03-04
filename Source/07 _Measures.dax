@@ -1,0 +1,30 @@
+﻿// Gotchas.pbix
+
+// Calculated table
+_Measures = {""}
+
+// Measures
+Count of Cups (sum) = SUM('Consumption'[Cups Count])
+
+Count of Cups (sum) (CALCULATE not needed) = CALCULATE ( SUM ( 'Consumption'[Cups Count] ) )
+
+Count of Cups (sum) (Gangster) = 
+CALCULATE (
+    SUM ( 'Consumption'[Cups Count] ),
+    'New York People'[Group] = "Gangster"
+)
+
+Count of Cups (sum) (Gangster) (no syntax sugar) = 
+CALCULATE (
+    SUM ( 'Consumption'[Cups Count] ),
+    FILTER (
+        ALL ( 'New York People'[Group] ),
+        'New York People'[Group] = "Gangster"
+    )
+)
+
+Count of Cups (sum) (Gangster) (with KEEPFILTERS) = 
+CALCULATE (
+    SUM ( 'Consumption'[Cups Count] ),
+    KEEPFILTERS('New York People'[Group] = "Gangster")
+)

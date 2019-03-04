@@ -1,0 +1,82 @@
+﻿//Random.pbix: calculated table
+New York People = 
+VAR GenerateNumbers =
+    GENERATESERIES ( 1, 562004/*8*/ )
+VAR GenerateNumbersWithRandom =
+    ADDCOLUMNS (
+        GenerateNumbers,
+        "Random10", RANDBETWEEN ( 1, 10 ),
+        "Random26", RANDBETWEEN ( 1, 26 ),
+        "Random50", RANDBETWEEN ( 1, 50 ),
+        "Random1000", RANDBETWEEN ( 1, 1000 ),
+        "Random5000", RANDBETWEEN ( 1, 5000 ),
+        "Random10000", RANDBETWEEN ( 1, 10000 ),
+        "Random15000", RANDBETWEEN ( 1, 15000 ),
+        "FirstDay", DATE ( 1920, 1, 1 )
+    )
+VAR AddIsSpeakeasyVisitor =
+    ADDCOLUMNS (
+        GenerateNumbersWithRandom,
+        "Is Speakeasy Visitor", IF (
+            [Random5000] = 1
+                || [Random15000] = 15000,
+            // Gangsters are always a speakeasy visitor
+            "Is Speakeasy Visitor",
+            "Is Not Speakeasy Visitor"
+        )
+    )
+VAR AddOtherColumns =
+    SELECTCOLUMNS (
+        AddIsSpeakeasyVisitor,
+        "SSN", [Value],
+        "Gender", IF ( MOD ( [Random10000], 2 ) = 0, "Male", "Female" ),
+        "Group", IF (
+            [Random15000] <= 1000,
+            "Wealthy",
+            IF ( [Random15000] = 15000, "Gangster", "Lower class" )
+        ),
+        "Area Code",
+        VAR Letter =
+            [Random26] + POWER ( 2, 6 ) // + POWER(2,5) // Uncomment this if you prefer lower case
+        VAR Postfix =
+            FORMAT ( RANDBETWEEN ( 1, 9 ), "-#" )
+        RETURN
+            REPT ( UNICHAR ( Letter ), 3 ) & Postfix, // Special thanks to Phil Seamark for this trick
+        "Maximum Cups Per Day", [Random10],
+        "Ethnicity",
+        VAR WhitePopulation = 9714
+        VAR BlackPopulation = WhitePopulation + 271
+        VAR AsianPopulation = BlackPopulation + 14
+        RETURN
+            IF (
+                [Random10000] <= WhitePopulation,
+                "White",
+                IF (
+                    [Random10000] > WhitePopulation
+                        && [Random10000] <= BlackPopulation,
+                    "Black",
+                    IF (
+                        [Random10000] > BlackPopulation
+                            && [Random10000] <= AsianPopulation,
+                        "Asian",
+                        "Other"
+                    )
+                )
+            ),
+        "Speakeasy Membership Start Date", IF (
+            [Is Speakeasy Visitor] = "Is Speakeasy Visitor",
+            [FirstDay] + [Random1000]
+        ),
+        "Speakeasy Membership End Date", IF (
+            [Is Speakeasy Visitor] = "Is Speakeasy Visitor",
+            VAR StartDate = [FirstDay] + [Random1000]
+            VAR HasEndDate = [Random50] <= 30
+            VAR EndDate =
+                IF ( HasEndDate, StartDate + [Random50] * 30 )
+            RETURN
+                EndDate
+        ),
+		"Is Speakeasy Visitor", [Is Speakeasy Visitor]
+    )
+RETURN
+    AddOtherColumns

@@ -1,0 +1,46 @@
+﻿//Calculated column on 'New York People'
+Average Count of Cups in weekend =
+VAR WeekendConsumption =
+    CALCULATETABLE (
+        RELATEDTABLE ( 'Consumption' ),
+        'Date'[Is Weekend] = "Is Weekend"
+    )
+VAR AvgWeekendConsumption =
+    AVERAGEX ( WeekendConsumption, Consumption[Cups Count] )
+VAR RoundedAvgWeekendConsumption =
+    TRUNC ( AvgWeekendConsumption, 2 )
+RETURN
+    RoundedAvgWeekendConsumption
+    
+//Calculated column on 'Consumption'
+Is Alcoholic Drink = 
+VAR EndDate =
+    RELATED ( 'New York People'[Speakeasy Membership End Date] )
+RETURN
+    RELATED ( 'New York People'[Is Speakeasy Visitor] ) = "Is Speakeasy Visitor"
+    && RELATED ( 'New York People'[Speakeasy Membership Start Date] ) <= 'Consumption'[Date]
+    && (
+        ISBLANK ( EndDate )
+            || EndDate > 'Consumption'[Date]
+    )
+	
+//Measures
+Count of Cups (with alcohol) (sum) = 
+CALCULATE (
+    SUM ( 'Consumption'[Cups Count] ),
+    KEEPFILTERS ( 'Consumption'[Is Alcoholic Drink] = TRUE )
+)
+
+Count of Cups (without alcohol) (sum) = 
+CALCULATE (
+    SUM ( 'Consumption'[Cups Count] ),
+    KEEPFILTERS ( 'Consumption'[Is Alcoholic Drink] = FALSE )
+)
+
+Count of Cups (with alcohol) (%) = DIVIDE( [Count of Cups (with alcohol) (sum)], [Count of Cups (sum)])
+
+Count of Cups (with alcohol) (%) (no syntax sugar) = IF (
+    [Count of Cups (sum)] <> 0,
+    [Count of Cups (with alcohol) (sum)] / [Count of Cups (sum)],
+    BLANK ()
+)

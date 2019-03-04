@@ -1,0 +1,26 @@
+﻿//Random.pbix: calculated table
+Consumption = 
+VAR NewYorkPeople =
+    SELECTCOLUMNS (
+        'New York People',
+        "SSN", 'New York People'[SSN],
+        "Maximum Cups Per Day", 'New York People'[Maximum Cups Per Day]
+    )
+VAR StartDate =
+    DATE ( 1920, 1, 1 )
+VAR AmountOfDays = 18/*0*/
+VAR EndDate = StartDate + AmountOfDays
+VAR AllDates =
+    CALENDAR ( StartDate, EndDate )
+VAR CartesianProduct =
+    CROSSJOIN ( NewYorkPeople, AllDates )
+VAR Result =
+    SELECTCOLUMNS (
+        CartesianProduct,
+        "Partition Bucket", MOD ( [SSN], 1000 ),
+        "SSN", [SSN],
+        "Date", [Date],
+        "Cups Count", RANDBETWEEN ( 0, [Maximum Cups Per Day] )
+    )
+RETURN
+    Result
